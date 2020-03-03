@@ -16,6 +16,8 @@ class App extends Component {
       displayName: '',
       displayOpen: 0,
       displayCurrent: 0,
+      displayVolume: 0,
+      color: '#20e371',
     };
   }
 
@@ -46,7 +48,7 @@ class App extends Component {
         apikey: apiKey, // api key
         function: 'TIME_SERIES_INTRADAY',
         interval: '1min',
-        outputsize: 'compact',
+        outputsize: 'full',
       }
     }).then((response) => {
       const rawData = response.data['Time Series (1min)']; // created object of 
@@ -58,6 +60,7 @@ class App extends Component {
           label: key.slice(11, 16),
           time: Number(key.slice(11, 16).replace(':', '.')),
           price: Number(rawData[key]['4. close']),
+          volume: Number(rawData[key]['5. volume'])
         })
       }
 
@@ -68,6 +71,14 @@ class App extends Component {
       const latestPrice = cleanData[arrayLength].price;
       const openingPrice = cleanData[0].price;
       const companyName = memeList[lookupValue];
+      const latestVolume = cleanData[arrayLength].volume;
+      const red = '#e33720';
+
+      if(openingPrice > latestPrice) {
+        this.setState({
+          color: red,
+        })
+      }
 
       this.setState({
         chartData: cleanData,
@@ -76,6 +87,7 @@ class App extends Component {
         displayName: companyName,
         displayOpen: openingPrice,
         displayCurrent: latestPrice,
+        displayVolume: latestVolume,
       })
     })
   }
@@ -93,7 +105,8 @@ class App extends Component {
     return (
       <div className='wrapper App'>
         <div className='selection'>
-          <h1>select a meme stock</h1>
+          <h1>tendies tracker</h1>
+          <p>select a meme stock to track.</p>
           <form action="">
             <select onChange={this.selectionEvent} name='security-selection'>
               <option value=''></option>
@@ -109,20 +122,20 @@ class App extends Component {
 
         <div className='chart'>
           <h2 className='company-name'>{this.state.displayName}</h2>
-          <p className="company-meta">current price: ${this.state.displayCurrent}</p>
-          <p className="company-meta">open price: ${this.state.displayOpen}</p>
+          <p className='company-meta'>current price: ${this.state.displayCurrent}</p>
+          <p className='company-meta'>open price: ${this.state.displayOpen}</p>
+          <p className='company-meta'>current trading volume: {this.state.displayVolume}</p>
           <LineChart 
             width={800} height={400} 
             data={this.state.chartData}
             margin={{ top: 20, right: 50, bottom: 20, left: 0 }}
           >
-            <Line dataKey='price' stroke='#413ea0' dot={false} />
+            <Line dataKey='price' stroke={this.state.color} dot={false} />
             <XAxis dataKey='label' />
             <YAxis dataKey='price' type='number' domain={[this.state.minVal, this.state.maxVal]} tick={false} />
             <Tooltip />
-            <ReferenceLine y={this.state.diplayOpen} stroke="#000000" strokeDasharray="3 3" label={this.state.displayOpen} />
+            <ReferenceLine y={this.state.displayOpen} stroke="#000000" strokeDasharray="3 3" />
           </LineChart>
-
         </div>
       </div>  
     );
