@@ -1,5 +1,10 @@
+
+
+/* google fonts import */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap');
 
+
+/*******************************************/
 /* setup styling */
 
 
@@ -17,6 +22,7 @@ html { -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: 
 /* setup styling */
 /*******************************************/
 /* general styling */
+
 
 html {
   font-size: 62.5%; /* 16px * 62.5% = 10px */
@@ -42,7 +48,6 @@ body {
 
 
 .head {
-  /* border: 1px blue solid;  */
   color: #ffffff;
 }
 
@@ -58,8 +63,8 @@ body {
 /*******************************************/
 /* selection section */
 
+
 .selection-container {
-  /* border: 1px blue solid; */
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
@@ -85,10 +90,10 @@ body {
 }
 
 
-
 /* selection section */
 /*******************************************/
 /* chart section */
+
 
 .company-details {
   color: #ffffff;
@@ -98,11 +103,17 @@ body {
   margin: 1% 0;
 }
 
+.company-meta:last-child {
+  margin-bottom: 0;
+}
+
+
 /* chart section */
 /*******************************************/
 /* footer section */
 
-.disclaimer {
+.disclaimer,
+.disclaimer-link {
   color: #999999;
   font-size: 1.2rem;
   margin: 1% 0;
@@ -110,3 +121,4 @@ body {
 
 /* footer section */
 /*******************************************/
+
