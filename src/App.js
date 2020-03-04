@@ -14,12 +14,13 @@ class App extends Component {
       minVal: 0,
 
       displayName: '',
-      displayOpen: 0,
-      displayCurrent: 0,
-      displayVolume: 0,
+      displayOpen: '',
+      displayCurrent: '',
+      displayVolume: '',
       color: '#20e371',
     };
   }
+
 
   // selection variable store
   selectionEvent = (event) => {
@@ -28,15 +29,16 @@ class App extends Component {
     })
   }
 
+
   submitEvent = (event) => {
     event.preventDefault();
     const lookupValue = this.state.userSelection;
     const apiKey = 'G7PA4WVLPU036EB6'; // api key
     const memeList = {
-      amd: 'Advanced Micro Devices, Inc.',
-      tsla: 'Tesla, Inc',
-      msft: 'Microsoft Corporation',
-      spce: 'Virgin Galactic Holdings, Inc.',
+      amd: 'Advanced Micro Devices, Inc. ($AMD)',
+      tsla: 'Tesla, Inc ($TSLA)',
+      msft: 'Microsoft Corporation ($MSFT)',
+      spce: 'Virgin Galactic Holdings, Inc. ($SPCE)',
     }
 
     axios({
@@ -68,10 +70,12 @@ class App extends Component {
       const minimum = Math.min.apply(Math, cleanData.map(function (o) { return o.price }));
 
       const arrayLength = cleanData.length - 1
+      const companyName = memeList[lookupValue];
       const latestPrice = cleanData[arrayLength].price;
       const openingPrice = cleanData[0].price;
-      const companyName = memeList[lookupValue];
-      const latestVolume = cleanData[arrayLength].volume;
+      const latestPriceString = `Current price: $${cleanData[arrayLength].price}`;
+      const openingPriceString = `Opening price: $${cleanData[0].price}`;
+      const latestVolumeString = `Current trading volume: ${cleanData[arrayLength].volume}`;
       const red = '#e33720';
 
       if(openingPrice > latestPrice) {
@@ -85,14 +89,12 @@ class App extends Component {
         maxVal: maximum,
         minVal: minimum,
         displayName: companyName,
-        displayOpen: openingPrice,
-        displayCurrent: latestPrice,
-        displayVolume: latestVolume,
+        displayOpen: openingPriceString,
+        displayCurrent: latestPriceString,
+        displayVolume: latestVolumeString,
       })
     })
   }
-
-
 
 
   handleKeyDown = (event) => {
@@ -101,14 +103,19 @@ class App extends Component {
     }
   }
 
+
   render() {
     return (
       <div className='wrapper App'>
+
+        <header className='head'>
+          <h1 className='head-title'>tendies tracker</h1>
+          <p className='head-instructions'>Select one the hottest meme stocks (from the dropdown menu) to track.</p>
+        </header>
+
         <div className='selection'>
-          <h1>tendies tracker</h1>
-          <p>select a meme stock to track.</p>
-          <form action="">
-            <select onChange={this.selectionEvent} name='security-selection'>
+          <form className='selection-container' action=''>
+            <select className='selection-dropdown' onChange={this.selectionEvent} name='security-selection'>
               <option value=''></option>
               <option value='amd'>$AMD</option>
               <option value='msft'>$MSFT</option>
@@ -116,27 +123,36 @@ class App extends Component {
               <option value='tsla'>$TSLA</option>
             </select>
 
-            <button onClick={this.submitEvent}>select</button>
+            <button className='selection-button' onClick={this.submitEvent}>track</button>
           </form>
         </div>
 
-        <div className='chart'>
-          <h2 className='company-name'>{this.state.displayName}</h2>
-          <p className='company-meta'>current price: ${this.state.displayCurrent}</p>
-          <p className='company-meta'>open price: ${this.state.displayOpen}</p>
-          <p className='company-meta'>current trading volume: {this.state.displayVolume}</p>
+        <main className='chart-container'>
+          <div className='company-details'>
+            <h2 className='company-name'>{this.state.displayName}</h2>
+            <p className='company-meta'>{this.state.displayCurrent}</p>
+            <p className='company-meta'>{this.state.displayOpen}</p>
+            <p className='company-meta'>{this.state.displayVolume}</p>
+          </div>
+
           <LineChart 
-            width={800} height={400} 
+            className='chart'
+            width={600} height={350} 
             data={this.state.chartData}
             margin={{ top: 20, right: 50, bottom: 20, left: 0 }}
           >
-            <Line dataKey='price' stroke={this.state.color} dot={false} />
-            <XAxis dataKey='label' />
-            <YAxis dataKey='price' type='number' domain={[this.state.minVal, this.state.maxVal]} tick={false} />
+            <Line dataKey='price' stroke={this.state.color} dot={false} strokeWidth={1.5}/>
+            <XAxis dataKey='label' stroke={'#ffffff'} />
+            <YAxis dataKey='price' type='number' domain={[this.state.minVal, this.state.maxVal]} tick={false} hide={true} stroke={'#ffffff'} />
             <Tooltip />
             <ReferenceLine y={this.state.displayOpen} stroke="#000000" strokeDasharray="3 3" />
           </LineChart>
-        </div>
+        </main>
+
+        <footer className='foot'>
+          <p className='disclaimer'> All data displayed on this website is not accurate real-time trading data. Any and all trades based on information displayed on this website is made at the sole discretion of the user. </p>
+          <p className='disclaimer'>financial data fetched from alphavantage.co</p>
+        </footer>
       </div>  
     );
   }
