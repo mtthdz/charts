@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "/matthew-hernandez-project-five/precache-manifest.0a91cf157ec4b1fb4b5b95e74cee8cd8.js"
+  "/matthew-hernandez-project-five/precache-manifest.cb855fa0d346d33496e3d62097780ef8.js"
 );
 
 self.addEventListener('message', (event) => {
