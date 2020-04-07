@@ -7,16 +7,6 @@ import { LineChart, BarChart, Bar, Line, XAxis, YAxis, Tooltip, ReferenceLine } 
 
 // notes:
 
-// background/context for non-finance project marker:
-//    intraday data: data within the current day (not 24hr, i.e. wouldn't show yesterday's data today)
-//    market open: 9:30am local time (for markets in the EST timezone, i.e. Bay St, Wall St)
-//    previous-day close: 4:00pm local time
-//    volume: how many shares have been traded, not how many trades
-//    ticker symbols (like in the dropdown) is the shorthand for company names
-//    the '$' prior to each ticker symbol indicates the shares of a company, rather than the company itself
-//    when the current price is below the previous-day closing price, it is considered a "loss" and will display in the color red to indicate this
-//    the metric in brackets next to 'current price' indicates how many points the current price is above/below the previous-day closing price
-
 // order of contents:
 //  1. constructor
 //  2. selection event handler
@@ -33,8 +23,11 @@ import { LineChart, BarChart, Bar, Line, XAxis, YAxis, Tooltip, ReferenceLine } 
 //      b. barchart
 //    iv. footer
 
-// due to limitations with the API call, I can only call the latest 100 intraday points; true previous-day closing price and current-day opening price won't be true. Will come back to solve this issue by pulling intraday data since inception and figuring out how to only display latest 24hr intraday data.
-// due to the lack of support with the Recharts library and limited timeframe for this project, the chart is not responsive. I will come back to fix this via another library.
+
+// next steps
+// implement search and autofill feature (stretch goal)
+// due to limitations with the API call, I can only call the latest 100 intraday points; true previous-day closing price and current-day opening price won't be true. I will solve this issue by pulling intraday data since inception and figuring out how to only display latest 24hr intraday data (MVP)
+// due to the lack of support with the Recharts library and limited timeframe for this project (in the scope of Bootcamp due dates), the chart is not responsive. This fix is ongoing (MVP)
 
 
 class App extends Component {
@@ -56,6 +49,7 @@ class App extends Component {
 
 
   // selection event
+  // stores selected pulldown option into state
   selectionEvent = (event) => {
     this.setState({
       userSelection: event.target.value,
@@ -64,16 +58,11 @@ class App extends Component {
 
 
   // submit event
+  // upon event firing, API is called (using selection event variable as lookup value)
   submitEvent = (event) => {
     event.preventDefault();
     const lookupValue = this.state.userSelection;
     const apiKey = 'G7PA4WVLPU036EB6'; // api key
-    const memeList = {
-      amd: 'Advanced Micro Devices, Inc. ($AMD)',
-      tsla: 'Tesla, Inc ($TSLA)',
-      msft: 'Microsoft Corporation ($MSFT)',
-      spce: 'Virgin Galactic Holdings, Inc. ($SPCE)',
-    }
 
     axios({
       url: 'https://www.alphavantage.co/query?',
@@ -105,7 +94,13 @@ class App extends Component {
       const minimum = Math.min.apply(Math, cleanData.map(function (o) { return o.price }));
 
       // these variables are meant to populate the meta data above the chart
-      // these are all stored in state
+      // they are all stored in state
+      const memeList = {
+        amd: 'Advanced Micro Devices, Inc. ($AMD)',
+        tsla: 'Tesla, Inc ($TSLA)',
+        msft: 'Microsoft Corporation ($MSFT)',
+        spce: 'Virgin Galactic Holdings, Inc. ($SPCE)',
+      }
       const companyName = memeList[lookupValue]; // this is static due to limited project timeline
 
       // obtains open and current prices + differential
@@ -122,11 +117,17 @@ class App extends Component {
       // will change html elements red when stock is negative relative to previous day closing price
       // due to api limitations, i use current day opening price rather than previous day closing price
       const red = '#e33720'; 
+      const green = '#20e371';
       if(opening > latest) {
         this.setState({
           color: red,
+        }) 
+      
+      } else {
+        this.setState({
+          color: green,
         })
-      }
+      };
 
       // all variables stored in state upon event firing
       this.setState({
@@ -155,8 +156,8 @@ class App extends Component {
 
         {/* header */}
         <header className='head'>
-          <h1 className='head-title'>tendies tracker</h1>
-          <p className='head-instructions'>Select one the hottest meme stocks (from the dropdown menu) to track.</p>
+          <h1 className='head-title'>Charts</h1>
+          <p className='head-instructions'>Select one the stocks (from the dropdown menu) to track.</p>
         </header>
 
         {/* selection */}
@@ -185,7 +186,7 @@ class App extends Component {
 
           <LineChart 
             className='chart'
-            width={600} height={250} 
+            width={1000} height={250} 
             margin={{ top: 20, right: 50, bottom: 0, left: 0 }}
             data={this.state.chartData}
           >
@@ -198,7 +199,7 @@ class App extends Component {
 
           <BarChart
             className='chart'
-            width={600} height={125}
+            width={1000} height={125}
             margin={{ top: 0, right: 50, bottom: 0, left: 0 }}
             data={this.state.chartData}
           >
@@ -210,14 +211,11 @@ class App extends Component {
 
         {/* footer */}
         <footer className='foot'>
-          <p className='disclaimer'> All data displayed on this website is not accurate real-time trading data. Any and all trades based on information displayed on this website is made at the sole discretion of the user. </p>
           <p className='disclaimer'>financial data fetched from <a className= 'disclaimer-link' href='https://www.alphavantage.co/' target='_blank'>alphavantage.co</a></p>
         </footer>
       </div>  
     );
   }
-
-
 }
 
 export default App;
